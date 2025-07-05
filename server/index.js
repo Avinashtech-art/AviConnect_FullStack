@@ -13,7 +13,14 @@ import { authenticateSocket } from './middleware/auth.js';
 import { handleSocketConnection } from './socket/socketHandler.js';
 
 dotenv.config();
-
+const allowedOrigins = [
+  "http://localhost",
+  "http://localhost:5173",
+  "http://localhost:3000",
+   "http://54.237.251.238:5173",
+  "http://54.237.251.238", 
+  "http://34.203.20.186",
+]
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
@@ -27,7 +34,13 @@ const io = new Server(server, {
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
